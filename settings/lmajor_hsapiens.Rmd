@@ -1,0 +1,38 @@
+```{r settings}
+# species information
+parasite = 'L. major'
+host     = 'H. sapiens'
+stages  = c('procyclic', 'metacyclic', 'amastigote')
+
+# output file prefix
+outfile_prefix = 'lmajor_infecting_hsapiens'
+
+# fasta/gff
+input_gff   = file.path(Sys.getenv('REF'), 'lmajor_friedlin',
+                        '/annotation/TriTrypDB-8.1_LmajorFriedlin_genes_plus_unannotated.gff')
+input_fasta = file.path(Sys.getenv("REF"), 
+                        'lmajor_friedlin/genome/TriTrypDB-8.1_LmajorFriedlin_Genome.fasta')
+
+# spliced leader / polyadeynlation sites
+# Taken from L. major / H. sapiens  UTR analysis output from 2015/05/20
+sl_input = list(
+    procyclic='input/lmajor_hsapiens_procyclic_ncrnas_removed_sl.gff.gz',
+    metacyclic='input/lmajor_hsapiens_metacyclic_ncrnas_removed_sl.gff.gz',
+    amastigote='input/lmajor_hsapiens_amastigote_ncrnas_removed_sl.gff.gz'
+)
+
+polya_input = list(
+    procyclic='input/lmajor_hsapiens_procyclic_ncrnas_removed_polya.gff.gz',
+    metacyclic='input/lmajor_hsapiens_metacyclic_ncrnas_removed_polya.gff.gz',
+    amastigote='input/lmajor_hsapiens_metacyclic_ncrnas_removed_polya.gff.gz'
+)
+
+# Number of bases flanking CDS to scan for motifs when actual UTR length is not
+# known; numbers are based on median 5' and 3' UTR lengths for L. major
+default_5utr_width = 250
+default_3utr_width = 575
+
+# Non-coding RNA filters
+id_filter_string   = 'rRNA|5SRRNA|snRNA|snoRNA|SLRNA|TRNA|SRP'
+type_filter_string = 'rRNAencoding|snRNAencoding|snoRNAencoding|tRNAencoding'
+```

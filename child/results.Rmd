@@ -1,0 +1,120 @@
+#### Length statistics
+
+```{r utr_length_stats}
+lengths = results[['combined']]$length
+lengths = lengths[!is.na(lengths)]
+
+coverage = length(lengths) / nrow(results[['combined']])
+print(sprintf("%% %d'UTRs detected: %0.2f", 
+              ifelse(feature_name == 'sl', 5, 3), coverage))
+
+quantile(lengths)
+mean(lengths)
+median(lengths)
+hist(lengths)
+```
+
+### Alternative site usage
+
+```{r alt_site_usage_function}
+#
+# create_utr_comparison_df
+#
+create_utr_comparison_df = function(stage1, stage2) {
+    # input site usage dataframes
+    df1 = results[[stage1]]
+    df2 = results[[stage2]]
+
+    comparison_df = tbl_df(data.frame(
+        name=df1$name,
+        stage1_len=df1$length,
+        stage2_len=df2$length,
+        average_primary_site_num_reads=(df1$num_reads_primary +
+                                        df2$num_reads_primary) / 2,
+        average_ptos_ratio=((df1$num_reads_primary / df1$num_reads_secondary) + 
+                            (df2$num_reads_primary / df2$num_reads_secondary)) / 2,
+        count_average=(df1$num_reads_primary + df2$num_reads_primary) / 2,
+        stage1_stage2_ratio_stage1_samples=(df1$num_reads_primary /
+                            pmax(results_cross_stage[[stage1]][[stage2]], 1)),
+        stage2_stage1_ratio_stage2_samples=(df2$num_reads_primary / 
+                            pmax(results_cross_stage[[stage2]][[stage1]], 1))
+    ))
+
+    # version with reads mapped for stages of interest
+    comparison_df %>%
+        filter(!is.na(stage1_len) & !is.na(stage2_len)) %>%
+        mutate(
+            log_average_ratio=log2(0.5 * (stage1_stage2_ratio_stage1_samples + stage2_stage1_ratio_stage2_samples)),
+            length_diff=abs(stage1_len - stage2_len), 
+            log_average_reads=log2(average_primary_site_num_reads),
+            log_average_ptos=log2(average_ptos_ratio),
+            log_length_diff=log2(length_diff)
+        )
+}
+```
+
+```{r alt_site_usage}
+# Generate stage comparison plots
+comparisons_tested = c()
+
+for (s1 in stages) {
+    for (s2 in stages) {
+        # skip self-comparisons
+        if (s1 == s2) {
+            next
+        }
+        # if A vs. B has already been tested, skip B vs. A
+        comparison_name = paste0(sort(c(s1, s2)), collapse='')
+
+        if(comparison_name %in% comparisons_tested) {
+            next
+        } else {
+            comparisons_tested = append(comparisons_tested, comparison_name)
+        }
+
+        utr_comparison_df = create_utr_comparison_df(s1, s2) 
+
+        plt = ggplot(utr_comparison_df, 
+            aes(stage1_len, stage2_len, color=log_average_ptos,
+                size=average_primary_site_num_reads)) + 
+            geom_point() +
+            xlab(s1) + ylab(s2) +
+            scale_color_gradient2(low="black", mid="blue", high="red") +
+            geom_abline(slope=1, intercept=300, color='#666666', lwd=0.5) +
+            geom_abline(slope=1, intercept=-300, color='#666666', lwd=0.5) +
+            scale_x_continuous(expand = c(0.01, 0.01)) +
+            scale_y_continuous(expand = c(0.01, 0.01))
+            #geom_segment(aes(x=300, y=0, xend=6000, yend=5700, color='#666666'))
+            #scale_colour_continuous(high='red') 
+            #scale_size(trans='log')
+        print(plt)
+
+        # sites with switching only
+        filtered_df = utr_comparison_df %>% filter(stage1_len != stage2_len) 
+
+        if (nrow(filtered_df) > 0) {
+            plt = ggplot(filtered_df,
+                aes(stage1_len, stage2_len, color=log_average_ptos,
+                    size=log_average_reads)) + 
+                geom_point() +
+                xlab(s1) + ylab(s2) +
+                scale_color_gradient2(low="black", mid="blue", high="red") +
+                geom_abline(slope=1, intercept=300, color='#666666', lwd=0.5) +
+                geom_abline(slope=1, intercept=-300, color='#666666', lwd=0.5) +
+                scale_x_continuous(expand = c(0.01, 0.01)) +
+                scale_y_continuous(expand = c(0.01, 0.01))
+            print(plt)
+        }
+
+        # print top 25 genes with strongest site switching behavior
+        stage1_stage2_utr_diff = utr_comparison_df %>% 
+            filter(count_average & log_average_ratio > 0.75) %>%
+            select(-log_length_diff)
+
+        print(sprintf("Number of alternatively %s genes (%s vs. %s): %d",
+                      ifelse(feature_name == 'sl', 'trans-spliced',
+                             'polyadenylated'), s1, s2,
+                    nrow(stage1_stage2_utr_diff)))
+    }
+}
+```
