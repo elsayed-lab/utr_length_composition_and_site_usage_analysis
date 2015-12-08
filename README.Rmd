@@ -79,7 +79,7 @@ source('helper.R')
 
 ### Settings
 
-```{r child='settings/tcruzi_sylvio.Rmd'}
+```{r child='settings/tcruzi_ystrain_nonesmer.Rmd'}
 ```
 
 ### Load sequence and annotations
@@ -91,6 +91,10 @@ fasta = readDNAStringSet(input_fasta)
 
 chromosomes = gff[gff$type %in% c('contig', 'chromosome')]
 genes       = gff[gff$type == 'gene']
+
+# Fix FASTA names
+# e.g. "LmjF.24 | organism=Leishmania_major_strain_Friedlin |..." -> "LmjF.24"
+names(fasta) = sapply(strsplit(names(fasta), ' | '), function(x) {x[1]})
 
 # L. major: load unannotated ORFs detected from ribosome profiling data
 if (parasite == 'L. major') {
@@ -160,9 +164,11 @@ for (stage in stages) {
 sl_seqinfo = seqinfo(sl_gffs[[stages[1]]])
 polya_seqinfo = seqinfo(polya_gffs[[stages[1]]])
 
-for (stage in stages[2:length(stages)]) {
-    sl_seqinfo = suppressWarnings(merge(sl_seqinfo, seqinfo(sl_gffs[[stage]])))
-    polya_seqinfo = suppressWarnings(merge(polya_seqinfo, seqinfo(polya_gffs[[stage]])))
+if (length(stages) > 1) {
+    for (stage in stages[2:length(stages)]) {
+        sl_seqinfo = suppressWarnings(merge(sl_seqinfo, seqinfo(sl_gffs[[stage]])))
+        polya_seqinfo = suppressWarnings(merge(polya_seqinfo, seqinfo(polya_gffs[[stage]])))
+    }
 }
 
 for (stage in stages) {
@@ -171,11 +177,17 @@ for (stage in stages) {
                                         %in% seqlevels(sl_gffs[[stage]])]
     seqlevels(sl_gffs[[stage]]) = c(seqlevels(sl_gffs[[stage]]), sl_levels)
 
+    # Reorder levels
+    seqlevels(sl_gffs[[stage]]) = sort(seqlevels(sl_gffs[[stage]]))
+
     # Add levels that aren't already represented
     polya_levels = seqlevels(polya_seqinfo)[!seqlevels(polya_seqinfo) 
                                         %in% seqlevels(polya_gffs[[stage]])]
     seqlevels(polya_gffs[[stage]]) = c(seqlevels(polya_gffs[[stage]]), 
                                        polya_levels)
+
+    # Reorder levels
+    seqlevels(polya_gffs[[stage]]) = sort(seqlevels(polya_gffs[[stage]]))
 }
 ```
 
@@ -213,6 +225,12 @@ default_utr_width = default_3utr_width
 ```
 
 ```{r child='child/results.Rmd'}
+```
+
+```{r save_output}
+timestring = format(Sys.time(), "%Y-%m-%d")
+html_filepath = sprintf("output/%s_%s.html", outfile_prefix, timestring)
+system(sprintf('(sleep 30 && cp README.html %s) &', html_filepath))
 ```
 
 System Information

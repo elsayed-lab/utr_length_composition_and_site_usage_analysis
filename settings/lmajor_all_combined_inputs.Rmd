@@ -1,30 +1,34 @@
 ```{r settings}
+#
+# Similar to lmajor_all.Rmd except that instead of reading in individual
+# species and stage-specific GFFs, combined GFFs representing sites detecting
+# across all samples are used.
+#
+# In theory the results should be similar, although the improved read depth
+# may improve the site detection some in the previous utr analysis pipeline.
+#
 # species information
 parasite = 'L. major'
-host     = 'H. sapiens'
-stages  = c('procyclic', 'metacyclic', 'amastigote')
+host     = 'H. sapiens - M. Musculus'
+stages  = c('lmajor')
 
 # output file prefix
-outfile_prefix = 'lmajor_infecting_hsapiens'
+outfile_prefix = 'lmajor_all_combined'
 
 # fasta/gff
 input_gff   = file.path(Sys.getenv('REF'), 'lmajor_friedlin',
-                        '/annotation/TriTrypDB-8.1_LmajorFriedlin_genes_plus_unannotated.gff')
+                        'annotation/TriTrypDB-8.1_LmajorFriedlin_plus_unannotated_orfs.gff')
 input_fasta = file.path(Sys.getenv("REF"), 
                         'lmajor_friedlin/genome/TriTrypDB-8.1_LmajorFriedlin_Genome.fasta')
 
 # spliced leader / polyadeynlation sites
 # Taken from L. major / H. sapiens  UTR analysis output from 2015/05/20
 sl_input = list(
-    procyclic='input/lmajor_hsapiens_procyclic_ncrnas_removed_sl.gff.gz',
-    metacyclic='input/lmajor_hsapiens_metacyclic_ncrnas_removed_sl.gff.gz',
-    amastigote='input/lmajor_hsapiens_amastigote_ncrnas_removed_sl.gff.gz'
+    lmajor='input/lmajor_all_no_ncrnas_sl.gff.gz'
 )
 
 polya_input = list(
-    procyclic='input/lmajor_hsapiens_procyclic_ncrnas_removed_polya.gff.gz',
-    metacyclic='input/lmajor_hsapiens_metacyclic_ncrnas_removed_polya.gff.gz',
-    amastigote='input/lmajor_hsapiens_metacyclic_ncrnas_removed_polya.gff.gz'
+    lmajor='input/lmajor_all_no_ncrnas_polya.gff.gz'
 )
 
 # Number of bases flanking CDS to scan for motifs when actual UTR length is not

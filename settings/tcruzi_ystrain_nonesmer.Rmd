@@ -1,0 +1,46 @@
+```{r settings}
+#
+# T. cruzi CL Brener Y strain (mapped to Non-Esmeraldo-like haplotype)
+#
+# Note (2015/11/03):
+# Problematic gene (TcCLB.511029.20) was removed from the acceptor site output.
+# See https://github.com/elsayed-lab/utr_analysis/issues/1 for more
+# information.
+#
+# species information
+parasite = 'T. cruzi strain Y strain (Mapped to CL Brener Non-Esmeraldo-like'
+host     = 'H. sapiens'
+stages  = c('trypomastigote', 'amastigote', 'epimastigote')
+
+# output file prefix
+outfile_prefix = 'tcruzi_ystrain_nonesmer'
+
+# fasta/gff
+input_gff   = file.path(Sys.getenv('REF'), 'tcruzi_clbrener_nonesmeraldo-like',
+                        '/annotation/TriTrypDB-8.1_TcruziCLBrenerNon-Esmeraldo-like.gff')
+input_fasta = file.path(Sys.getenv("REF"), 
+                        'tcruzi_clbrener_nonesmeraldo-like/genome/TriTrypDB-8.1_TcruziCLBrenerNon-Esmeraldo-like_Genome.fasta')
+
+# spliced leader / polyadeynlation sites
+# Taken from T. cruzi Sylvio UTR analysis output from 2015/07
+sl_input = list(
+    amastigote='input/tcruzi_infecting_hsapiens_amastigote_nonesmer_sl_sorted.gff.gz',
+    trypomastigote='input/tcruzi_infecting_hsapiens_trypomastigote_nonesmer_sl_sorted.gff.gz',
+    epimastigote='input/tcruzi_infecting_hsapiens_epimastigote_nonesmer_sl_sorted.gff.gz'
+)
+
+polya_input = list(
+    amastigote='input/tcruzi_infecting_hsapiens_amastigote_nonesmer_polya_sorted.gff.gz',
+    trypomastigote='input/tcruzi_infecting_hsapiens_trypomastigote_nonesmer_polya_sorted.gff.gz',
+    epimastigote='input/tcruzi_infecting_hsapiens_epimastigote_nonesmer_polya_sorted.gff.gz'
+)
+
+# Number of bases flanking CDS to scan for motifs when actual UTR length is not
+# known; numbers are based on median 5' and 3' UTR lengths for T. cruzi Sylvio
+default_5utr_width = 95
+default_3utr_width = 270
+
+# Non-coding RNA filters
+id_filter_string   = 'rRNA|5SRRNA|snRNA|snoRNA|SLRNA|TRNA|SRP'
+type_filter_string = 'rRNAencoding|snRNAencoding|snoRNAencoding|tRNAencoding'
+```

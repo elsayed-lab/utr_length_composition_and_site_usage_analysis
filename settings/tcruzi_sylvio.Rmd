@@ -27,8 +27,8 @@ polya_input = list(
 
 # Number of bases flanking CDS to scan for motifs when actual UTR length is not
 # known; numbers are based on median 5' and 3' UTR lengths for T. cruzi Sylvio
-default_5utr_width = 250
-default_3utr_width = 575
+default_5utr_width = 95
+default_3utr_width = 270
 
 # Non-coding RNA filters
 id_filter_string   = 'rRNA|5SRRNA|snRNA|snoRNA|SLRNA|TRNA|SRP'

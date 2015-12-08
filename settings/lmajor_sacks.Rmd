@@ -1,0 +1,43 @@
+```{r settings}
+# species information
+parasite = 'L. major'
+host     = 'Sandfly'
+stages  = c('cultured_metacyclic', 'footpad_amastigote', 'sandfly_day2',
+            'sandfly_day4', 'sandfly_day15')
+
+# output file prefix
+outfile_prefix = 'lmajor_sacks'
+
+# fasta/gff
+input_gff   = file.path(Sys.getenv('REF'), 'lmajor_friedlin',
+                        'annotation/TriTrypDB-8.1_LmajorFriedlin_plus_unannotated_orfs.gff')
+input_fasta = file.path(Sys.getenv("REF"), 
+                        'lmajor_friedlin/genome/TriTrypDB-8.1_LmajorFriedlin_Genome.fasta')
+
+# spliced leader / polyadeynlation sites
+# Taken from L. major / H. sapiens  UTR analysis output from 2015/05/20
+sl_input = list(
+    cultured_metacyclic='input/lmajor_sacks_cultured_metacyclic_sl_no_ncrnas_sorted.gff.gz',
+    footpad_amastigote='input/lmajor_sacks_footpad_amast_sl_no_ncrnas_sorted.gff.gz',
+    sandfly_day2='input/lmajor_sacks_sandfly_day2_sl_no_ncrnas_sorted.gff.gz',
+    sandfly_day4='input/lmajor_sacks_sandfly_day4_sl_no_ncrnas_sorted.gff.gz',
+    sandfly_day15='input/lmajor_sacks_sandfly_day15_sl_no_ncrnas_sorted.gff.gz'
+)
+
+polya_input = list(
+    cultured_metacyclic='input/lmajor_sacks_cultured_metacyclic_polya_no_ncrnas_sorted.gff.gz',
+    footpad_amastigote='input/lmajor_sacks_footpad_amast_polya_no_ncrnas_sorted.gff.gz',
+    sandfly_day2='input/lmajor_sacks_sandfly_day2_polya_no_ncrnas_sorted.gff.gz',
+    sandfly_day4='input/lmajor_sacks_sandfly_day4_polya_no_ncrnas_sorted.gff.gz',
+    sandfly_day15='input/lmajor_sacks_sandfly_day15_polya_no_ncrnas_sorted.gff.gz'
+)
+
+# Number of bases flanking CDS to scan for motifs when actual UTR length is not
+# known; numbers are based on median 5' and 3' UTR lengths for L. major
+default_5utr_width = 250
+default_3utr_width = 545
+
+# Non-coding RNA filters
+id_filter_string   = 'rRNA|5SRRNA|snRNA|snoRNA|SLRNA|TRNA|SRP'
+type_filter_string = 'rRNAencoding|snRNAencoding|snoRNAencoding|tRNAencoding'
+```
