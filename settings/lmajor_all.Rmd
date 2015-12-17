@@ -5,6 +5,16 @@ host     = 'H. sapiens - M. Musculus'
 stages  = c('hs-procyclic', 'hs-metacyclic', 'hs-amastigote', 'mm-procyclic',
             'mm-metacyclic', 'mm-amastigote')
 
+# Output verbosity
+verbose = TRUE,
+
+# Number of individual UTR plots to display for each developmental stage and
+# UTR side. The purpose of these plots are to provide a sense of the data
+# distribution and to visualize the effect of primary # site selection with and
+# without smoothing.
+
+max_plots = 10
+
 # output file prefix
 outfile_prefix = 'lmajor_all_separate'
 

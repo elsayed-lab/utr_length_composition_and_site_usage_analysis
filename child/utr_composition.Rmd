@@ -19,7 +19,7 @@ for (stage in c(stages, 'combined')) {
     results[[stage]] = merge(results[[stage]], utr_composition_df[[stage]],
                              by='name')
     outfile = paste(outfile_prefix, stage, paste0(outfile_suffix, '.csv'), sep='_')
-    write.csv(results[[stage]], file=file.path('..', 'output', outfile),
+    write.csv(results[[stage]], file=file.path('..', outdir,  outfile),
               quote=FALSE, row.names=FALSE)
 }
 ```
@@ -29,7 +29,7 @@ for (stage in c(stages, 'combined')) {
 message(outfile_suffix)
 output_gff = paste(outfile_prefix, paste0(outfile_suffix, '.gff'), sep='_')
 
-fp = file(file.path("..", "output", output_gff))
+fp = file(file.path("..", outdir, output_gff))
 message(output_gff)
 writeLines(gff_lines, fp)
 message("Done writing!")

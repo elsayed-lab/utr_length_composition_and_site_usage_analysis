@@ -1,11 +1,11 @@
-#### Length statistics
+### Length statistics
 
-```{r utr_length_stats}
+```{r utr_length_stats, results='asis'}
 lengths = results[['combined']]$length
 lengths = lengths[!is.na(lengths)]
 
 coverage = length(lengths) / nrow(results[['combined']])
-print(sprintf("%% %d'UTRs detected: %0.2f", 
+cat(sprintf("\n\n%% %d'UTRs detected: **%0.2f**\n\n", 
               ifelse(feature_name == 'sl', 5, 3), coverage))
 
 quantile(lengths)
@@ -14,7 +14,7 @@ median(lengths)
 hist(lengths)
 ```
 
-### Alternative site usage
+## Alternative site usage
 
 ```{r alt_site_usage_function}
 #
@@ -53,7 +53,7 @@ create_utr_comparison_df = function(stage1, stage2) {
 }
 ```
 
-```{r alt_site_usage}
+```{r alt_site_usage, warning=FALSE, results='asis'}
 # Generate stage comparison plots
 comparisons_tested = c()
 
@@ -83,7 +83,8 @@ for (s1 in stages) {
             geom_abline(slope=1, intercept=300, color='#666666', lwd=0.5) +
             geom_abline(slope=1, intercept=-300, color='#666666', lwd=0.5) +
             scale_x_continuous(expand = c(0.01, 0.01)) +
-            scale_y_continuous(expand = c(0.01, 0.01))
+            scale_y_continuous(expand = c(0.01, 0.01)) +
+            ggtitle(sprintf("%s site usage: %s vs. %s (All genes)", feature_name, s1, s2))
             #geom_segment(aes(x=300, y=0, xend=6000, yend=5700, color='#666666'))
             #scale_colour_continuous(high='red') 
             #scale_size(trans='log')
@@ -93,6 +94,7 @@ for (s1 in stages) {
         filtered_df = utr_comparison_df %>% filter(stage1_len != stage2_len) 
 
         if (nrow(filtered_df) > 0) {
+            # plot comparing primary vs. secondary site usage for each gene
             plt = ggplot(filtered_df,
                 aes(stage1_len, stage2_len, color=log_average_ptos,
                     size=log_average_reads)) + 
@@ -102,8 +104,15 @@ for (s1 in stages) {
                 geom_abline(slope=1, intercept=300, color='#666666', lwd=0.5) +
                 geom_abline(slope=1, intercept=-300, color='#666666', lwd=0.5) +
                 scale_x_continuous(expand = c(0.01, 0.01)) +
-                scale_y_continuous(expand = c(0.01, 0.01))
+                scale_y_continuous(expand = c(0.01, 0.01)) +
+                ggtitle(sprintf("%s site usage: %s vs. %s (Genes with switching)", feature_name, s1, s2))
             print(plt)
+
+            # also save output as a table
+            out_table <- file.path(outdir, sprintf("%s_%s_%s_vs_%s.csv",
+                                                   outfile_prefix,
+                                                   feature_name, s1, s2))
+            write.csv(filtered_df, file=out_table, quote=FALSE)
         }
 
         # print top 25 genes with strongest site switching behavior
@@ -111,7 +120,7 @@ for (s1 in stages) {
             filter(count_average & log_average_ratio > 0.75) %>%
             select(-log_length_diff)
 
-        print(sprintf("Number of alternatively %s genes (%s vs. %s): %d",
+        cat(sprintf("\n\nNumber of alternatively %s genes (%s vs. %s): **%d**\n\n",
                       ifelse(feature_name == 'sl', 'trans-spliced',
                              'polyadenylated'), s1, s2,
                     nrow(stage1_stage2_utr_diff)))

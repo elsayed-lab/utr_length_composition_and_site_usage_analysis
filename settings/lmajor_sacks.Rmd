@@ -2,8 +2,17 @@
 # species information
 parasite = 'L. major'
 host     = 'Sandfly'
-stages  = c('cultured_metacyclic', 'footpad_amastigote', 'sandfly_day2',
-            'sandfly_day4', 'sandfly_day15')
+stages   = c('cultured_metacyclic', 'footpad_amastigote', 'sandfly_day2',
+             'sandfly_day4', 'sandfly_day15')
+
+# Output verbosity
+verbose = FALSE,
+
+# Number of individual UTR plots to display for each developmental stage and
+# UTR side. The purpose of these plots are to provide a sense of the data
+# distribution and to visualize the effect of primary # site selection with and
+# without smoothing.
+max_plots = 10
 
 # output file prefix
 outfile_prefix = 'lmajor_sacks'

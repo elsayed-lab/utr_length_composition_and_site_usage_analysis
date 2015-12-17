@@ -4,6 +4,12 @@ parasite = 'T. cruzi strain Y strain'
 host     = 'H. sapiens'
 stages  = c('trypomastigote', 'amastigote', 'epimastigote')
 
+# Number of individual UTR plots to display for each developmental stage and
+# UTR side. The purpose of these plots are to provide a sense of the data
+# distribution and to visualize the effect of primary # site selection with and
+# without smoothing.
+max_plots = 10
+
 # output file prefix
 outfile_prefix = 'tcruzi_ystrain'
 

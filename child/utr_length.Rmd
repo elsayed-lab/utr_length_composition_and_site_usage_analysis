@@ -1,4 +1,4 @@
-```{r compute_utr_lengths, message=FALSE, cache=TRUE, autodep=TRUE}
+```{r compute_utr_lengths, message=FALSE, warning=FALSE, cache=TRUE, autodep=TRUE}
 # Output data structures
 utr_lengths             = list()
 utr_num_reads           = list()
