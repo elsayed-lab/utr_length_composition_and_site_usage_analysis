@@ -38,21 +38,21 @@ Overview
 ========
 
 The goal of this analysis is to parse the output from our [UTR analysis
-pipeline](https://github.com/elsayed-lab/utr_analysis), perform some basic
-smoothing of the spliced leader and polya acceptor site counts and determine
-the most likely primary UTR boundaries for each gene where information is
-available. 5'- and 3'-UTR boundaries, along with some other useful information
-such as UTR GC- and CT-richness will be outputted in a format that is
-convenient for downstream analysis.
+pipeline](https://github.com/elsayed-lab/utr_analysis), analyze spliced leader
+acceptor site and poly-adenylation site counts, and determine the most likely
+primary UTR boundaries for each gene where information is available.
+
+5'- and 3'-UTR boundaries, along with some other useful information such as UTR
+GC- and CT-richness are outputted in a format that is convenient for downstream
+analysis.
 
 Finally, we will look for evidence of either alternative trans-splicing or
-poly-adenylation and attempt to visualize the prevelance and magnitude of
+poly-adenylation and attempt to visualize the prevalence and magnitude of
 these events across the different developmental stages.
 
 This analysis is based on a version originally written and applied separately
 to *T. cruzi* and *L. major* in 2014. The code has been refactored and cleaned
 up to make it easier to apply to new datasets.
-
 
 Settings
 ========
@@ -110,7 +110,7 @@ if (parasite == 'L. major') {
     # entries -- removing these for now...
     orfs = orfs[!duplicated(orfs$Name)]
 
-    # Drop GFF columns not shared betwene TriTrypDB GFF and uORF GFF
+    # Drop GFF columns not shared between TriTrypDB GFF and uORF GFF
     keep_cols = intersect(colnames(mcols(genes)), colnames(mcols(orfs)))
     genes = genes[,keep_cols]
     orfs = orfs[,keep_cols]
