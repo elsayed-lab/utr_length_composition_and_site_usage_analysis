@@ -1,5 +1,5 @@
 ---
-title: "L. major Ryan infecting Sandfly: UTR Length and Alternative Trans-splicing / Poly-adenylation Analysis"
+title: "T. cruzi Y strain infecting H. sapiens: UTR Length and Alternative Trans-splicing / Poly-adenylation Analysis"
 output:
   knitrBootstrap::bootstrap_document:
     theme: flatly
@@ -14,7 +14,7 @@ opts_chunk$set(fig.width=1920/96,
 options(knitr.duplicate.label='allow')
 ```
 
-<div style='font-size:40px;'>L. major Ryan infecting Sandfly: UTR Length and Alternative Trans-splicing / Poly-adenylation Analysis</div>
+<div style='font-size:40px;'>T. cruzi Y strain infecting H. sapiens: UTR Length and Alternative Trans-splicing / Poly-adenylation Analysis</div>
 
 [view source](README.rmd)
 
@@ -57,7 +57,7 @@ up to make it easier to apply to new datasets.
 Settings
 ========
 
-```{r child='settings/lmajor_sacks.Rmd'}
+```{r child='settings/tcruzi_sylvio.Rmd'}
 ```
 
 ```{r include=FALSE}
@@ -231,7 +231,18 @@ default_utr_width = default_3utr_width
 ```{r child='child/results.Rmd'}
 ```
 
-```{r save_output}
+Downloads
+=========
+
+```{r, echo=FALSE, results='asis'}
+cat('\n')
+
+for (x in list.files(outdir)) {
+    cat(sprintf("- [%s](%s)\n", x, x))
+}
+```
+
+```{r save_output, include=FALSE}
 timestring = format(Sys.time(), "%Y-%m-%d")
 html_filepath = file.path(outdir, sprintf("%s_%s.html", outfile_prefix, timestring))
 system(sprintf('(sleep 30 && cp README.html %s) &', html_filepath))

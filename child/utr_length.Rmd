@@ -214,7 +214,7 @@ for (gene_name in genes$Name) {
 }
 ```
 
-```{r stage_specific_results}
+```{r stage_specific_results, warning=FALSE}
 # Make stage-specific dataframes
 results = list()
 results_cross_stage = list()

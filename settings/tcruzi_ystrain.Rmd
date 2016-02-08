@@ -4,6 +4,9 @@ parasite = 'T. cruzi strain Y strain'
 host     = 'H. sapiens'
 stages  = c('trypomastigote', 'amastigote', 'epimastigote')
 
+# Output verbosity
+verbose = FALSE
+
 # Number of individual UTR plots to display for each developmental stage and
 # UTR side. The purpose of these plots are to provide a sense of the data
 # distribution and to visualize the effect of primary # site selection with and
@@ -20,7 +23,7 @@ input_fasta = file.path(Sys.getenv("REF"),
                         'tcruzi_clbrener_esmeraldo-like/genome/TriTrypDB-8.1_TcruziCLBrenerEsmeraldo-like_Genome.fasta')
 
 # spliced leader / polyadeynlation sites
-# Taken from T. cruzi Sylvio UTR analysis output from 2015/07
+# Taken from T. cruzi UTR analysis output from 2015/07
 sl_input = list(
     amastigote='input/tcruzi_infecting_hsapiens_amastigote_sl_sorted.gff.gz',
     trypomastigote='input/tcruzi_infecting_hsapiens_trypomastigote_sl_sorted.gff.gz',

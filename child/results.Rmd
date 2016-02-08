@@ -1,16 +1,21 @@
 ### Length statistics
 
-```{r utr_length_stats, results='asis'}
+```{r utr_lengths_detected, results='asis', echo='FALSE'}
 lengths = results[['combined']]$length
 lengths = lengths[!is.na(lengths)]
 
 coverage = length(lengths) / nrow(results[['combined']])
-cat(sprintf("\n\n%% %d'UTRs detected: **%0.2f**\n\n", 
-              ifelse(feature_name == 'sl', 5, 3), coverage))
 
+output_template <- paste0("\n\n- %% %d'UTRs detected: **%0.2f**\n", 
+                          "- Mean UTR length: **%0.2f**\n",
+                          "- Median UTR length: **%0.2f**\n\n")
+
+cat(sprintf(output_template, ifelse(feature_name == 'sl', 5, 3), 
+            coverage, mean(lengths), median(lengths)))
+```
+
+```{r utr_length_stats}
 quantile(lengths)
-mean(lengths)
-median(lengths)
 hist(lengths)
 ```
 
@@ -29,6 +34,7 @@ create_utr_comparison_df = function(stage1, stage2) {
         name=df1$name,
         stage1_len=df1$length,
         stage2_len=df2$length,
+        len_diff=abs(df1$length - df2$length),
         average_primary_site_num_reads=(df1$num_reads_primary +
                                         df2$num_reads_primary) / 2,
         average_ptos_ratio=((df1$num_reads_primary / df1$num_reads_secondary) + 
@@ -84,6 +90,9 @@ for (s1 in stages) {
             geom_abline(slope=1, intercept=-300, color='#666666', lwd=0.5) +
             scale_x_continuous(expand = c(0.01, 0.01)) +
             scale_y_continuous(expand = c(0.01, 0.01)) +
+            geom_text(data=subset(utr_comparison_df, log_average_ptos >= 2 & average_primary_site_num_reads >= 50 & len_diff > 10),
+                      aes(stage1_len, stage2_len, label=name),
+                      color='#000000', size=4, angle=45, hjust=0, vjust=0) +
             ggtitle(sprintf("%s site usage: %s vs. %s (All genes)", feature_name, s1, s2))
             #geom_segment(aes(x=300, y=0, xend=6000, yend=5700, color='#666666'))
             #scale_colour_continuous(high='red') 
@@ -105,11 +114,14 @@ for (s1 in stages) {
                 geom_abline(slope=1, intercept=-300, color='#666666', lwd=0.5) +
                 scale_x_continuous(expand = c(0.01, 0.01)) +
                 scale_y_continuous(expand = c(0.01, 0.01)) +
+                geom_text(data=subset(utr_comparison_df, log_average_ptos >= 2 & log_average_reads >= 3 & len_diff > 10),
+                          aes(stage1_len, stage2_len, label=name), size=4, angle=45, colour='#000000',
+                              hjust=0, vjust=0) +
                 ggtitle(sprintf("%s site usage: %s vs. %s (Genes with switching)", feature_name, s1, s2))
             print(plt)
 
             # also save output as a table
-            out_table <- file.path(outdir, sprintf("%s_%s_%s_vs_%s.csv",
+            out_table <- file.path('..', outdir, sprintf("%s_%s_%s_vs_%s.csv",
                                                    outfile_prefix,
                                                    feature_name, s1, s2))
             write.csv(filtered_df, file=out_table, quote=FALSE)

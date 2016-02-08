@@ -6,7 +6,7 @@ stages   = c('cultured_metacyclic', 'footpad_amastigote', 'sandfly_day2',
              'sandfly_day4', 'sandfly_day15')
 
 # Output verbosity
-verbose = FALSE,
+verbose = FALSE
 
 # Number of individual UTR plots to display for each developmental stage and
 # UTR side. The purpose of these plots are to provide a sense of the data

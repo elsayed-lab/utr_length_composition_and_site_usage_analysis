@@ -5,7 +5,7 @@ host     = 'H. sapiens'
 stages  = c('trypomastigote', 'amastigote')
 
 # Output verbosity
-verbose = TRUE,
+verbose = TRUE
 
 # Number of individual UTR plots to display for each developmental stage and
 # UTR side. The purpose of these plots are to provide a sense of the data
@@ -23,7 +23,7 @@ input_fasta = file.path(Sys.getenv("REF"),
                         'tcruzi_sylvio/genome/TriTrypDB-8.0_TcruziSylvioX10-1_Genome.fasta')
 
 # spliced leader / polyadeynlation sites
-# Taken from T. cruzi Sylvio UTR analysis output from 2015/07
+# Taken from T. cruzi Sylvio UTR analysis output from 2016/02
 sl_input = list(
     amastigote='input/tcruzi_sylvio_amastigote_spliced_leader_sorted.gff.gz',
     trypomastigote='input/tcruzi_sylvio_trypomastigote_spliced_leader_sorted.gff.gz'
