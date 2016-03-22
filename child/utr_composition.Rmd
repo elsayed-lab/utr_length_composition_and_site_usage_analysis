@@ -1,24 +1,25 @@
 ```{r utr_composition}
 # create lists to store results
-utr_sequences      = list()
-utr_composition_df = list()
+utr_sequences      <- list()
+utr_composition_df <- list()
 
 # 5utr or 3utr
-outfile_suffix = sprintf('%dutr', ifelse(feature_name == 'sl', 5, 3))
+outfile_suffix <- sprintf('%dutr', ifelse(feature_name == 'sl', 5, 3))
 
 for (stage in c(stages, 'combined')) {
     # UTR sequence
-    utr_sequences[[stage]] = get_utr_sequences(genes, fasta, results[[stage]],
-                                               default_utr_width,
-                                               utr5=feature_name == 'sl')
+    # 2016/03/22: Instead of using pre-defined 5' and 3'UTR lengths, should we
+    # simply assign NAs
+    utr_sequences[[stage]] <- get_utr_sequences(genes, fasta, results[[stage]],
+                                                utr5=feature_name == 'sl')
 
     # UTR sequence composition
-    utr_composition_df[[stage]] = get_utr_composition(utr_sequences[[stage]])
+    utr_composition_df[[stage]] <- get_utr_composition(utr_sequences[[stage]])
 
     # Combine dataframes and save result
-    results[[stage]] = merge(results[[stage]], utr_composition_df[[stage]],
+    results[[stage]] <-  merge(results[[stage]], utr_composition_df[[stage]],
                              by='name')
-    outfile = paste(outfile_prefix, stage, paste0(outfile_suffix, '.csv'), sep='_')
+    outfile <- paste(outfile_prefix, stage, paste0(outfile_suffix, '.csv'), sep='_')
     write.csv(results[[stage]], file=file.path('..', outdir,  outfile),
               quote=FALSE, row.names=FALSE)
 }
@@ -27,11 +28,20 @@ for (stage in c(stages, 'combined')) {
 ```{r save_gff}
 # Write result to GFF
 message(outfile_suffix)
-output_gff = paste(outfile_prefix, paste0(outfile_suffix, '.gff'), sep='_')
+output_gff <- paste(outfile_prefix, paste0(outfile_suffix, '.gff'), sep='_')
+output_filepath <- file.path("..", outdir, output_gff)
 
-fp = file(file.path("..", outdir, output_gff))
+fp <- file(output_filepath)
 message(output_gff)
 writeLines(gff_lines, fp)
 message("Done writing!")
 close(fp)
+
+# Set bash variable pointing to the UTR GFF
+Sys.setenv(utr_gff=output_filepath)
+```
+
+```{r engine='bash'}
+# Append UTR GFF entries to combined gff
+grep -v '^#' $utr_gff >> $combined_gff
 ```

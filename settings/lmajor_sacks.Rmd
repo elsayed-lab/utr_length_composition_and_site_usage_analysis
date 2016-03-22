@@ -41,11 +41,6 @@ polya_input = list(
     sandfly_day15='input/lmajor_sacks_sandfly_day15_polya_no_ncrnas_sorted.gff.gz'
 )
 
-# Number of bases flanking CDS to scan for motifs when actual UTR length is not
-# known; numbers are based on median 5' and 3' UTR lengths for L. major
-default_5utr_width = 250
-default_3utr_width = 545
-
 # Non-coding RNA filters
 id_filter_string   = 'rRNA|5SRRNA|snRNA|snoRNA|SLRNA|TRNA|SRP'
 type_filter_string = 'rRNAencoding|snRNAencoding|snoRNAencoding|tRNAencoding'

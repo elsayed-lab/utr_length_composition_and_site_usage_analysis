@@ -198,6 +198,12 @@ for (gene_name in genes$Name) {
         }
     }
 
+    # Don't include GFF entries for genes where we couldn't determine the
+    # UTR boundaries
+    if any(is.na(c(combined_utr_start, combined_utr_end))) {
+        next
+    }
+
     # Add GFF entry
     utr_string1 = ifelse(feature_name == 'sl', '5utr', '3utr')
     utr_string2 = ifelse(feature_name == 'sl', 'five_prime_UTR', 'three_prime_UTR')

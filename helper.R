@@ -200,8 +200,7 @@ find_secondary_site = function(acceptor_sites, feature, gene, gene_strand,
 # Returns a vector of Biostrings instances containing the UTR sequence for each
 # input gene.
 #
-get_utr_sequences = function(genes, fasta, utr_lengths, default_width,
-                             utr5=TRUE) {
+get_utr_sequences = function(genes, fasta, utr_lengths, utr5=TRUE) {
     # retrieve utr length if known
     widths = data.frame(
         id=genes$ID,
@@ -224,8 +223,8 @@ get_utr_sequences = function(genes, fasta, utr_lengths, default_width,
 
     # for genes that were assigned the default UTR size, make sure that the
     # assigned boundaries fall within the chromosome
-    start(pos_strand) = pmax(1, start(pos_strand))
-    start(neg_strand) = pmax(1, start(neg_strand))
+    #start(pos_strand) = pmax(1, start(pos_strand))
+    #start(neg_strand) = pmax(1, start(neg_strand))
 
     end(pos_strand) = pmin(end(pos_strand), width(fasta[seqnames(pos_strand)]))
     end(neg_strand) = pmin(end(neg_strand), width(fasta[seqnames(neg_strand)]))

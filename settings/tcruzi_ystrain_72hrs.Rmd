@@ -1,11 +1,11 @@
 ```{r settings}
 # species information
-parasite = 'T. cruzi strain Y strain'
+parasite = 'T. cruzi strain Y. strain (72hrs)'
 host     = 'H. sapiens'
-stages  = c('trypomastigote', 'amastigote', 'epimastigote')
+stages  = c('amastigote')
 
 # Output verbosity
-verbose = FALSE
+verbose = TRUE
 
 # Number of individual UTR plots to display for each developmental stage and
 # UTR side. The purpose of these plots are to provide a sense of the data
@@ -14,7 +14,7 @@ verbose = FALSE
 max_plots = 10
 
 # output file prefix
-outfile_prefix = 'tcruzi_ystrain'
+outfile_prefix = 'tcruzi_ystrain_72hrs'
 
 # fasta/gff
 input_gff   = file.path(Sys.getenv('REF'), 'tcruzi_clbrener_esmeraldo-like',
@@ -23,18 +23,20 @@ input_fasta = file.path(Sys.getenv("REF"),
                         'tcruzi_clbrener_esmeraldo-like/genome/TriTrypDB-8.1_TcruziCLBrenerEsmeraldo-like_Genome.fasta')
 
 # spliced leader / polyadeynlation sites
-# Taken from T. cruzi UTR analysis output from 2015/07
+# Taken from T. cruzi Y. strain UTR analysis output from 2016/02
 sl_input = list(
-    amastigote='input/tcruzi_infecting_hsapiens_amastigote_sl_sorted.gff.gz',
-    trypomastigote='input/tcruzi_infecting_hsapiens_trypomastigote_sl_sorted.gff.gz',
-    epimastigote='input/tcruzi_infecting_hsapiens_epimastigote_sl_sorted.gff.gz'
+    amastigote='input/tcruzi_ystrain_72hrs_sl_sorted.gff.gz'
 )
 
 polya_input = list(
-    amastigote='input/tcruzi_infecting_hsapiens_amastigote_polya_sorted.gff.gz',
-    trypomastigote='input/tcruzi_infecting_hsapiens_trypomastigote_polya_sorted.gff.gz',
-    epimastigote='input/tcruzi_infecting_hsapiens_epimastigote_polya_sorted.gff.gz'
+    amastigote='input/tcruzi_ystrain_72hrs_polya_sorted.gff.gz'
 )
+
+# Number of bases flanking CDS to scan for motifs when actual UTR length is not
+# known; numbers are based on median 5' and 3' UTR lengths for T. cruzi Y.
+# strain
+default_5utr_width = 95
+default_3utr_width = 270
 
 # Non-coding RNA filters
 id_filter_string   = 'rRNA|5SRRNA|snRNA|snoRNA|SLRNA|TRNA|SRP'
