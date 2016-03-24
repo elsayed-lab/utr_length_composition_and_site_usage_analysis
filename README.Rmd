@@ -1,8 +1,11 @@
 ---
 title: "T. cruzi Y strain infecting H. sapiens: UTR Length and Alternative Trans-splicing / Poly-adenylation Analysis (72hrs)"
 output:
-  knitrBootstrap::bootstrap_document:
-    theme: flatly
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_float: true
+    number_sections: true
 ---
 
 ```{r knitr_settings, include=FALSE}
@@ -99,7 +102,8 @@ genes       = gff[gff$type == 'gene']
 # Copy input GFF to output directory; we will create a modified version of
 # the GFF which includes UTR boundary coordinates
 file.copy(input_gff, outdir, overwrite=TRUE)
-Sys.setenv(combined_gff=file.path(outdir, basename(input_gff)))
+combined_gff <- file.path('..', outdir, basename(input_gff))
+Sys.setenv(combined_gff=combined_gff)
 
 # Fix FASTA names
 # e.g. "LmjF.24 | organism=Leishmania_major_strain_Friedlin |..." -> "LmjF.24"
@@ -236,11 +240,6 @@ feature_name = 'polya'
 
 Downloads
 =========
-
-```{r engine='bash'}
-# Created a combined GFF file containing gene, mRNA, CDS and UTR entries
-
-```
 
 ```{r, echo=FALSE, results='asis'}
 cat('\n')

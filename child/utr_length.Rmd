@@ -200,7 +200,7 @@ for (gene_name in genes$Name) {
 
     # Don't include GFF entries for genes where we couldn't determine the
     # UTR boundaries
-    if any(is.na(c(combined_utr_start, combined_utr_end))) {
+    if (any(is.na(c(combined_utr_start, combined_utr_end)))) {
         next
     }
 
