@@ -25,15 +25,15 @@ input_fasta = file.path(Sys.getenv("REF"),
 # spliced leader / polyadeynlation sites
 # Taken from T. cruzi UTR analysis output from 2015/07
 sl_input = list(
-    amastigote='input/tcruzi_infecting_hsapiens_amastigote_sl_sorted.gff.gz',
-    trypomastigote='input/tcruzi_infecting_hsapiens_trypomastigote_sl_sorted.gff.gz',
-    epimastigote='input/tcruzi_infecting_hsapiens_epimastigote_sl_sorted.gff.gz'
+    amastigote='../input/tcruzi_infecting_hsapiens_amastigote_sl_sorted.gff.gz',
+    trypomastigote='../input/tcruzi_infecting_hsapiens_trypomastigote_sl_sorted.gff.gz',
+    epimastigote='../input/tcruzi_infecting_hsapiens_epimastigote_sl_sorted.gff.gz'
 )
 
 polya_input = list(
-    amastigote='input/tcruzi_infecting_hsapiens_amastigote_polya_sorted.gff.gz',
-    trypomastigote='input/tcruzi_infecting_hsapiens_trypomastigote_polya_sorted.gff.gz',
-    epimastigote='input/tcruzi_infecting_hsapiens_epimastigote_polya_sorted.gff.gz'
+    amastigote='../input/tcruzi_infecting_hsapiens_amastigote_polya_sorted.gff.gz',
+    trypomastigote='../input/tcruzi_infecting_hsapiens_trypomastigote_polya_sorted.gff.gz',
+    epimastigote='../input/tcruzi_infecting_hsapiens_epimastigote_polya_sorted.gff.gz'
 )
 
 # Non-coding RNA filters
