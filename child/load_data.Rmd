@@ -1,0 +1,165 @@
+## Load sequence and annotations
+
+```{r load_annotations, warning=FALSE}
+# Load genome sequence and annotations
+gff <- import.gff3(input_gff)
+fasta <- readDNAStringSet(input_fasta)
+
+chromosomes <- gff[gff$type %in% c('contig', 'chromosome')]
+genes       <- gff[gff$type == 'gene']
+
+# Copy input GFF to output directory; we will create a modified version of
+# the GFF which includes UTR boundary coordinates
+file.copy(input_gff, file.path('..', outdir), overwrite=TRUE)
+combined_gff <- file.path('..', outdir, basename(input_gff))
+Sys.setenv(combined_gff=combined_gff)
+
+# Fix FASTA names
+# e.g. "LmjF.24 | organism=Leishmania_major_strain_Friedlin |..." -> "LmjF.24"
+names(fasta) <- sapply(strsplit(names(fasta), ' | '), function(x) {x[1]})
+
+# L. major: load unannotated ORFs detected from ribosome profiling data
+if (parasite == 'L. major') {
+    orfs      <- gff[gff$type == 'ORF']
+    orfs$Name <- orfs$ID
+    orfs$description <- 'Unannotated ORF'
+
+    # 2015/06/30 A few of the unannotated ORFs appear to have multiple conflicting
+    # entries -- removing these for now...
+    orfs <- orfs[!duplicated(orfs$Name)]
+
+    # Drop GFF columns not shared between TriTrypDB GFF and uORF GFF
+    keep_cols <- intersect(colnames(mcols(genes)), colnames(mcols(orfs)))
+    genes <- genes[,keep_cols]
+    orfs <- orfs[,keep_cols]
+
+    genes <- append(genes, orfs)
+
+    # Fix names (L. major chromosome identifiers)
+    names(fasta) <- substring(names(fasta), 0, 7)
+}
+```
+
+## Remove noncoding RNAs
+
+```{r filter_ncrnas}
+# filter noncoding RNAs
+noncoding_ids <- genes$ID[grepl(id_filter_string, genes$ID)]
+
+ncrna_mask <- rep(FALSE, length(genes))
+
+if (!is.null(id_filter_string)) {
+    ncrna_mask <- ncrna_mask | grepl(id_filter_string, genes$ID)
+}
+
+if (!is.null(type_filter_string)) {
+    ncrna_mask <- ncrna_mask | grepl(type_filter_string, as.character(genes$type))
+}
+
+# remove noncoding RNAs
+genes <- genes[!ncrna_mask,]
+
+# remaining gene ids
+gene_ids <- genes$Name
+```
+
+## Load spliced leader and poly(A) site coordinates
+
+```{r load_acceptor_sites, warning=FALSE}
+sl_gffs <- list()
+polya_gffs <- list()
+
+# names of developmental stages being analyzed
+stages <- names(sl_input)
+
+for (stage in stages) {
+    # SL acceptor sites
+    sl_gffs[stage] <- import.gff3(gzfile(sl_input[[stage]]))
+    sl_gffs[stage] <- sl_gffs[[stage]][sl_gffs[[stage]]$Name %in% gene_ids]
+
+    # Poly(A) sites
+    polya_gffs[stage] <- import.gff3(gzfile(polya_input[[stage]]))
+    polya_gffs[stage] <- polya_gffs[[stage]][polya_gffs[[stage]]$Name %in% gene_ids]
+}
+
+# Normalize seqinfo (e.g. when reads cover differing sets of contigs)
+sl_seqinfo <- seqinfo(sl_gffs[[stages[1]]])
+polya_seqinfo <- seqinfo(polya_gffs[[stages[1]]])
+
+if (length(stages) > 1) {
+    for (stage in stages[2:length(stages)]) {
+        sl_seqinfo <- suppressWarnings(merge(sl_seqinfo, seqinfo(sl_gffs[[stage]])))
+        polya_seqinfo <- suppressWarnings(merge(polya_seqinfo, seqinfo(polya_gffs[[stage]])))
+    }
+}
+
+for (stage in stages) {
+    # Add levels that aren't already represented
+    sl_levels <- seqlevels(sl_seqinfo)[!seqlevels(sl_seqinfo) 
+                                        %in% seqlevels(sl_gffs[[stage]])]
+    seqlevels(sl_gffs[[stage]]) <- c(seqlevels(sl_gffs[[stage]]), sl_levels)
+
+    # Reorder levels
+    seqlevels(sl_gffs[[stage]]) <- sort(seqlevels(sl_gffs[[stage]]))
+
+    # Add levels that aren't already represented
+    polya_levels <- seqlevels(polya_seqinfo)[!seqlevels(polya_seqinfo) 
+                                        %in% seqlevels(polya_gffs[[stage]])]
+    seqlevels(polya_gffs[[stage]]) <- c(seqlevels(polya_gffs[[stage]]), 
+                                       polya_levels)
+
+    # Reorder levels
+    seqlevels(polya_gffs[[stage]]) <- sort(seqlevels(polya_gffs[[stage]]))
+}
+```
+
+## Filter out low-confidence sites
+
+In order to provide the most accurate estimates of UTR boundaries and SL
+acceptor and poly-adenylation sites, we will remove some putative sites with
+low support.
+
+There are three measures which we can use to measure our confidence for a given
+site:
+
+1. Number of reads which supporting the site ("score")
+2. Number of bases of SL suffix or Poly-A's supporting the site ("match_len")
+3. Number of bases which differed between the read-feature and the genomic
+   location where the predicted feature maps to.
+
+For a high confidence acceptor or poly-adenylation site, we would like to see
+large values for all of these. For example, in the case of spliced leader
+acceptor site detection, this would imply that many reads containing part of
+the SL sequence mapped adjacent to the acceptor site after the SL suffix was
+trimmed; that the SL suffixes matched in those reads were long (e.g. 20 nt's
+vs. 4-5 nt of the SL sequence), and that the suspected SL prefixes differed
+significantly from the sequence located in the genome where those reads map,
+indicating that they truly come from the SL and are not simply due to read
+errors in a SL-like genomic sequence.
+
+For now, the two filter criterion we will use are:
+
+1. Minimum number of bases supporting a site
+2. Minimum percent difference per base
+
+Example distributions for a single stage:
+
+```{r score_distributions}
+quantile(sl_gffs[[stage]]$score, na.rm=TRUE)
+#quantile(sl_gffs[[stage]]$min_length, na.rm=TRUE)
+#quantile(sl_gffs[[stage]]$seq_dist, na.rm=TRUE)
+```
+
+```{r filter_sites}
+for (stage in stages) {
+    # TEMP 2016/03/28 (change once updated GFFs are finished building)
+    sl_gffs[stage] <- sl_gffs[[stage]][sl_gffs[[stage]]$score >= 3]
+    polya_gffs[stage] <- polya_gffs[[stage]][polya_gffs[[stage]]$score >= 3]
+
+    # SL acceptor sites
+    #sl_gffs[stage] <- sl_gffs[[stage]][sl_gffs[[stage]]$Name %in% gene_ids]
+
+    # Poly(A) sites
+    #polya_gffs[stage] <- polya_gffs[[stage]][polya_gffs[[stage]]$Name %in% gene_ids]
+}
+```

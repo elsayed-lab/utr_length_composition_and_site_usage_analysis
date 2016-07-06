@@ -145,7 +145,7 @@ def main():
 
     # write combined gff
     #gff_suffix = commonsuffix(gffs).replace('.gz', '')
-    gff_suffix = "_sorted.gff"
+    gff_suffix = ".gff"
 
     outfile = "".join([os.path.commonprefix(gffs), 'combined', gff_suffix])
 

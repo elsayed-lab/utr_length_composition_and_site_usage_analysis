@@ -1,139 +1,139 @@
 ```{r compute_utr_lengths, message=FALSE, warning=FALSE, cache=TRUE, autodep=TRUE}
 # Output data structures
-utr_lengths             = list()
-utr_num_reads           = list()
-utr_num_reads_primary   = list()
-utr_num_reads_secondary = list()
-cross_stage_reads       = list()
+utr_lengths             <- list()
+utr_num_reads           <- list()
+utr_num_reads_primary   <- list()
+utr_num_reads_secondary <- list()
+cross_stage_reads       <- list()
 
 for (reads_stage in stages) {
-    utr_lengths[reads_stage]             = c()
-    utr_num_reads[reads_stage]           = c()
-    utr_num_reads_primary[reads_stage]   = c()
-    utr_num_reads_secondary[reads_stage] = c()
+    utr_lengths[reads_stage]             <- c()
+    utr_num_reads[reads_stage]           <- c()
+    utr_num_reads_primary[reads_stage]   <- c()
+    utr_num_reads_secondary[reads_stage] <- c()
 
     # cross-stage primary site usage
     #
     # Keeps track of stage-specific primary site coverage across different
     # developmental stages (e.g. amastigote primary site reads in procyclic samples)
-    cross_stage_reads[[reads_stage]] = list()
+    cross_stage_reads[[reads_stage]] <- list()
 
     for (site_stage in stages) {
-        cross_stage_reads[[reads_stage]][[site_stage]] = c()
+        cross_stage_reads[[reads_stage]][[site_stage]] <- c()
     }
 }
 
 # Add placeholder for combined (all-stage) counts
-utr_lengths['combined']             = c()
-utr_num_reads['combined']           = c()
-utr_num_reads_primary['combined']   = c()
-utr_num_reads_secondary['combined'] = c()
+utr_lengths['combined']             <- c()
+utr_num_reads['combined']           <- c()
+utr_num_reads_primary['combined']   <- c()
+utr_num_reads_secondary['combined'] <- c()
 
 # Start GFF output for combined set of acceptor sites
-gff_lines = c("##gff-version\t3",
+gff_lines <- c("##gff-version\t3",
               "##feature-ontology\tsofa.obo",
               "##attribute-ontology\tgff3_attributes.obo")
 
 # Add chromosome entries
 for (i in 1:length(chromosomes)) {
-    ch = chromosomes[i]
-    gff_lines = append(gff_lines, paste("##sequence-region", ch$Name, 1,
+    ch <- chromosomes[i]
+    gff_lines <- append(gff_lines, paste("##sequence-region", ch$Name, 1,
                                         ch$size, sep='\t'))
 }
 
 # keep track of the number of plots created
-num_diff = 0
-plot_num = 0
+num_diff <- 0
+plot_num <- 0
 
 # Add gene entries
-i = 1
+i <- 1
 
 for (gene_name in genes$Name) {
     # Process acceptor sites
     message(sprintf("Processing %s sites for gene %d/%d", feature_name, i, length(genes)))
-    i = i + 1
+    i <- i + 1
 
     # Placeholder for primary sites
-    primary_site_locations  = list()
+    primary_site_locations  <- list()
 
     # Gene GFF entry
-    gene = genes[genes$Name == gene_name]
-    gene_strand = as.character(strand(gene)) 
+    gene <- genes[genes$Name == gene_name]
+    gene_strand <- as.character(strand(gene)) 
 
-    combined_reads = 0
-    combined_reads_primary = 0
-    combined_reads_secondary = 0
+    combined_reads <- 0
+    combined_reads_primary <- 0
+    combined_reads_secondary <- 0
 
     # iterate over developmental stages
     for (stage in stages) {
-        acceptor_sites = gffs[[stage]]
-        acceptor_sites = acceptor_sites[acceptor_sites$Name == gene_name]
+        acceptor_sites <- gffs[[stage]]
+        acceptor_sites <- acceptor_sites[acceptor_sites$Name == gene_name]
     
         # total number of reads found which contain an acceptor site
-        utr_num_reads[[stage]] = append(utr_num_reads[[stage]], 
+        utr_num_reads[[stage]] <- append(utr_num_reads[[stage]], 
                                         sum(acceptor_sites$score))
 
         # determine acceptor site scores and corresponding UTR lengths
-        primary_site = find_primary_site(acceptor_sites, feature_name,
+        primary_site <- find_primary_site(acceptor_sites, feature_name,
                                          gene, gene_strand)
-        secondary_site = find_secondary_site(acceptor_sites, feature_name,
+        secondary_site <- find_secondary_site(acceptor_sites, feature_name,
                                              gene, gene_strand)
 
         # store location
-        primary_site_locations[[stage]] = primary_site$location
+        primary_site_locations[[stage]] <- primary_site$location
 
         # compute UTR length and coordinates
         if (feature_name == 'sl') {
             if (gene_strand == '+') {
-                utr_length = start(gene) - primary_site$location
+                utr_length <- start(gene) - primary_site$location
             } else {
-                utr_length = primary_site$location - end(gene)
+                utr_length <- primary_site$location - end(gene)
             }
         } else {
             # Poly(A)
             if (gene_strand == '+') {
-                utr_length = primary_site$location - end(gene)
+                utr_length <- primary_site$location - end(gene)
             } else {
-                utr_length =  start(gene) - primary_site$location
+                utr_length <-  start(gene) - primary_site$location
             }
         }
 
         # Add primary and secondary site read counts and UTR length
-        utr_lengths[[stage]] = append(utr_lengths[[stage]], utr_length)
+        utr_lengths[[stage]] <- append(utr_lengths[[stage]], utr_length)
 
-        utr_num_reads_primary[[stage]] = append(utr_num_reads_primary[[stage]],
+        utr_num_reads_primary[[stage]] <- append(utr_num_reads_primary[[stage]],
                                                 primary_site$num_reads)
-        utr_num_reads_secondary[[stage]] = append(utr_num_reads_secondary[[stage]],
+        utr_num_reads_secondary[[stage]] <- append(utr_num_reads_secondary[[stage]],
                                                   secondary_site$num_reads)
 
         # Update combined counts
-        combined_reads = combined_reads + sum(acceptor_sites$score)
-        combined_reads_primary = combined_reads_primary + primary_site$num_reads
-        combined_reads_secondary = combined_reads_secondary + secondary_site$num_reads
+        combined_reads <- combined_reads + sum(acceptor_sites$score)
+        combined_reads_primary <- combined_reads_primary + primary_site$num_reads
+        combined_reads_secondary <- combined_reads_secondary + secondary_site$num_reads
     }
 
     # Compute combined stage numbers
-    combined_sites = acceptor_sites
+    combined_sites <- acceptor_sites
 
-    utr_num_reads$combined = append(utr_num_reads$combined, combined_reads)
-    utr_num_reads_primary$combined = append(utr_num_reads_primary$combined, combined_reads_primary)
-    utr_num_reads_secondary$combined = append(utr_num_reads_secondary$combined, combined_reads_secondary)
+    utr_num_reads$combined <- append(utr_num_reads$combined, combined_reads)
+    utr_num_reads_primary$combined <- append(utr_num_reads_primary$combined, combined_reads_primary)
+    utr_num_reads_secondary$combined <- append(utr_num_reads_secondary$combined, combined_reads_secondary)
 
     for (stage in stages) {
-        acceptor_sites = gffs[[stage]]
-        acceptor_sites = acceptor_sites[acceptor_sites$Name == gene_name]
+        acceptor_sites <- gffs[[stage]]
+        acceptor_sites <- acceptor_sites[acceptor_sites$Name == gene_name]
 
         # num reads
         if (length(acceptor_sites) > 0) {
             for (j in 1:length(acceptor_sites)) {
-                entry = acceptor_sites[j]
+                entry <- acceptor_sites[j]
 
                 # if new site, add a new entry
                 if(!start(entry) %in% start(combined_sites)) {
-                    combined_sites = c(combined_sites, entry)
+                    combined_sites <- c(combined_sites, entry)
                 } else {
                     # otherwise add procyclic score to existing metacyclic score
-                    score(combined_sites[start(combined_sites) == start(entry)]) = (
+                    score(combined_sites[start(combined_sites) == start(entry)]) <- (
                         score(combined_sites[start(combined_sites) == start(entry)]) +
                         score(entry))
                 }
@@ -142,9 +142,9 @@ for (gene_name in genes$Name) {
     }
 
     # Find primary and secondary sites for reads from all stages
-    combined_primary_site = find_primary_site(combined_sites, feature_name,
+    combined_primary_site <- find_primary_site(combined_sites, feature_name,
                                               gene, gene_strand)
-    combined_secondary_site = find_secondary_site(combined_sites, feature_name,
+    combined_secondary_site <- find_secondary_site(combined_sites, feature_name,
                                                   gene, gene_strand)
 
     # Determine average UTR boundaries and length across all stages
@@ -152,45 +152,45 @@ for (gene_name in genes$Name) {
         # compute 5'utr length and coordinates
         if (gene_strand == '+') {
             # combined + strand
-            combined_utr_start  = combined_primary_site$location + 1
-            combined_utr_end    = start(gene) - 1
-            combined_length = start(gene) - combined_primary_site$location
+            combined_utr_start  <- combined_primary_site$location + 1
+            combined_utr_end    <- start(gene) - 1
+            combined_length <- start(gene) - combined_primary_site$location
         } else {
             # combined - strand
-            combined_utr_start  = end(gene) + 1
-            combined_utr_end    = combined_primary_site$location - 1
-            combined_length = combined_primary_site$location - end(gene)
+            combined_utr_start  <- end(gene) + 1
+            combined_utr_end    <- combined_primary_site$location - 1
+            combined_length <- combined_primary_site$location - end(gene)
         }
     } else {
         # poly(a)
         if (gene_strand == '+') {
             # combined + strand
-            combined_utr_start  = end(gene) + 1
-            combined_utr_end    = combined_primary_site$location - 1
-            combined_length = combined_primary_site$location - end(gene)
+            combined_utr_start  <- end(gene) + 1
+            combined_utr_end    <- combined_primary_site$location - 1
+            combined_length <- combined_primary_site$location - end(gene)
         } else {
             # combined - strand
-            combined_utr_start  = combined_primary_site$location + 1
-            combined_utr_end    = start(gene) - 1
-            combined_length = start(gene) - combined_primary_site$location
+            combined_utr_start  <- combined_primary_site$location + 1
+            combined_utr_end    <- start(gene) - 1
+            combined_length <- start(gene) - combined_primary_site$location
         }
     }
     # add combined utr length
-    utr_lengths[['combined']] = append(utr_lengths[['combined']], combined_length)
+    utr_lengths[['combined']] <- append(utr_lengths[['combined']], combined_length)
     
 
     # Add cross-stage read data
     # Update counts for cross-stage primary sites
     for (read_stage in stages) {
         # read acceptor sites
-        acceptor_sites = gffs[[read_stage]]
-        acceptor_sites = acceptor_sites[acceptor_sites$Name == gene_name]
+        acceptor_sites <- gffs[[read_stage]]
+        acceptor_sites <- acceptor_sites[acceptor_sites$Name == gene_name]
 
         for (site_stage in stages) {
             if (site_stage == read_stage) {
                 next
             }
-            cross_stage_reads[[read_stage]][[site_stage]] = append(
+            cross_stage_reads[[read_stage]][[site_stage]] <- append(
                 cross_stage_reads[[read_stage]][[site_stage]],
                 get_num_reads(acceptor_sites,
                               primary_site_locations[[site_stage]])
@@ -205,28 +205,28 @@ for (gene_name in genes$Name) {
     }
 
     # Add GFF entry
-    utr_string1 = ifelse(feature_name == 'sl', '5utr', '3utr')
-    utr_string2 = ifelse(feature_name == 'sl', 'five_prime_UTR', 'three_prime_UTR')
+    utr_string1 <- ifelse(feature_name == 'sl', '5utr', '3utr')
+    utr_string2 <- ifelse(feature_name == 'sl', 'five_prime_UTR', 'three_prime_UTR')
 
-    descr = sprintf("ID=%s_%s;Name=%s;description=%s", gene$ID, utr_string1,
+    descr <- sprintf("ID=%s_%s;Name=%s;description=%s", gene$ID, utr_string1,
                     gene_name, gene$description)
 
-    gff_entry = paste(seqnames(gene), "El-Sayed", utr_string2,
+    gff_entry <- paste(seqnames(gene), "El-Sayed", utr_string2,
                       combined_utr_start, combined_utr_end,
                       combined_primary_site$num_reads, gene_strand, '.',
                       descr, sep='\t')
 
-    gff_lines = append(gff_lines, gff_entry)
+    gff_lines <- append(gff_lines, gff_entry)
 }
 ```
 
 ```{r stage_specific_results, warning=FALSE}
 # Make stage-specific dataframes
-results = list()
-results_cross_stage = list()
+results <- list()
+results_cross_stage <- list()
 
 for (stage in c(stages, 'combined')) {
-    results[[stage]] = data.frame(
+    results[[stage]] <- data.frame(
         name=genes$Name,
         length=utr_lengths[[stage]],
         num_reads=utr_num_reads[[stage]],
@@ -243,14 +243,14 @@ for (stage in c(stages, 'combined')) {
     # For example, results_cross_stage[['procyclic']] lists the number of 
     # procyclic reads which mapped to the primary sites detected for other 
     # stages (amast and meta).
-    results_cross_stage[[stage]] = data.frame(gene=genes$Name)
+    results_cross_stage[[stage]] <- data.frame(gene=genes$Name)
     
     for (other_stage in stages) {
         if (other_stage == stage) {
             next
         }
-        results_cross_stage[[stage]][[other_stage]] = cross_stage_reads[[stage]][[other_stage]]
+        results_cross_stage[[stage]][[other_stage]] <- cross_stage_reads[[stage]][[other_stage]]
     }
-    results_cross_stage[[stage]] = tbl_df(results_cross_stage[[stage]])
+    results_cross_stage[[stage]] <- tbl_df(results_cross_stage[[stage]])
 }
 ```
