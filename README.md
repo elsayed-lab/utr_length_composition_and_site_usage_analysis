@@ -1,19 +1,19 @@
-UTR Length and Alternative Trans-splicing / Poly-adenylation Analysis
-=====================================================================
+UTR Length and Alternative Trans-splicing / Polyadenylation Analysis
+====================================================================
 
 Overview
 --------
 
 The purpose of this analysis is to provide some basic statistics and
 visualizations relating to Trypanosome UTR length and composition, and
-alternative trans-splicing and poly-adenylation site usage.
+alternative trans-splicing and polyadenylation site usage.
 
 In particular, this code was designed to use the output from [UTR Analysis
 Pipeline](https://github.com/elsayed-lab/utr_analysis) which uses
 RNA-Sequencing reads to detect trans-splicing acceptor sites and
-poly-adenylation sites. The output from this pipeline consists of two GFF
+polyadenylation sites. The output from this pipeline consists of two GFF
 files: one which contains all detected spliced leader (SL) sites, and another
-containing all detected Poly-adenylation sites. For each site, a score is
+containing all detected polyadenylation sites. For each site, a score is
 provided indicating the number of reads supporting each site.
 
 ![Example developmental stage site-usage figure](extra/screenshot.png)
@@ -65,6 +65,37 @@ the settings, a CSV file is generating describing site usage across the stages:
 
 Finally, a figure is generated for each pairwise stage comparison summarizing 
 the information in the above CSV file (see example at top of README.)
+
+Limitations
+-----------
+
+There are two important limitations of this analysis worth noting.
+
+First, when attempting to determine the UTR boundaries for a gene, each UTR is
+considered _independently_ of all others. This means that for a given 5'UTR,
+the site with the most read support will be selected as a primary site,
+regardless of its orientation to the 3'UTR boundary of a neighboring gene.
+
+While this is usually acceptable, there are times when the selected 5' and
+3'UTR boundaries for neighboring genes "overlap" one another resulting in a
+(incorrect) negative intergenic length.
+
+The second limitation of this analysis is that there is no attempt to detect
+and account for unannotated ORFs in the inter-CDS regions between genes. There
+are likely many instances of real genes or small ORFs which were missed during
+the original parasite genome annotations. As such, a trans-splicing or
+polyadenylation site that may appear to belong to one gene, may actually belong
+to some unannotated ORF between the known CDS and the detected site.
+
+The result of this is that some of the computed UTR boundaries will be longer
+than they should be.
+
+A separate pipeline is currently being developed
+([github.com/elsayed-lab/gene-structure-analysis](https://github.com/elsayed-lab/gene-structure-analysis))
+which attempts to account for both of these limitations by 1) assigning primary
+sites for adjacent genes simultaneously and 2) detecting ORFs in the inter-CDS 
+region which are supported by RNA-Seq read coverage and detected trans-splicing
+and polyadenylation sites.
 
 References
 ----------
