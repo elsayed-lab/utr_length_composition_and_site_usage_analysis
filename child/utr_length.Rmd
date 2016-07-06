@@ -147,7 +147,7 @@ for (gene_name in genes$Name) {
     combined_secondary_site <- find_secondary_site(combined_sites, feature_name,
                                                   gene, gene_strand)
 
-    # Determine average UTR boundaries and length across all stages
+    # Determine most commonly observed UTR boundaries and length across all stages
     if (feature_name == 'sl') {
         # compute 5'utr length and coordinates
         if (gene_strand == '+') {

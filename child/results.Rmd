@@ -35,11 +35,10 @@ create_utr_comparison_df <- function(stage1, stage2) {
         stage1_len=df1$length,
         stage2_len=df2$length,
         len_diff=abs(df1$length - df2$length),
-        average_primary_site_num_reads=(df1$num_reads_primary +
-                                        df2$num_reads_primary) / 2,
-        average_ptos_ratio=((df1$num_reads_primary / df1$num_reads_secondary) + 
-                            (df2$num_reads_primary / df2$num_reads_secondary)) / 2,
-        count_average=(df1$num_reads_primary + df2$num_reads_primary) / 2,
+        min_primary_site_num_reads=min(df1$num_reads_primary, df2$num_reads_primary),
+        min_ptos_ratio=min(df1$num_reads_primary / df1$num_reads_secondary, 
+                           df2$num_reads_primary / df2$num_reads_secondary),
+        count_min=min(df1$num_reads_primary, df2$num_reads_primary),
         stage1_stage2_ratio_stage1_samples=(df1$num_reads_primary /
                             pmax(results_cross_stage[[stage1]][[stage2]], 1)),
         stage2_stage1_ratio_stage2_samples=(df2$num_reads_primary / 
@@ -50,10 +49,10 @@ create_utr_comparison_df <- function(stage1, stage2) {
     comparison_df %>%
         filter(!is.na(stage1_len) & !is.na(stage2_len)) %>%
         mutate(
-            log_average_ratio=log2(0.5 * (stage1_stage2_ratio_stage1_samples + stage2_stage1_ratio_stage2_samples)),
+            log_min_ratio=log2(min(stage1_stage2_ratio_stage1_samples, stage2_stage1_ratio_stage2_samples)),
             length_diff=abs(stage1_len - stage2_len), 
-            log_average_reads=log2(average_primary_site_num_reads),
-            log_average_ptos=log2(average_ptos_ratio),
+            log_min_reads=log2(min_primary_site_num_reads),
+            log_min_ptos=log2(min_ptos_ratio),
             log_length_diff=log2(length_diff)
         )
 }
@@ -81,8 +80,8 @@ for (s1 in stages) {
         utr_comparison_df <- create_utr_comparison_df(s1, s2) 
 
         plt <- ggplot(utr_comparison_df, 
-            aes(stage1_len, stage2_len, color=log_average_ptos,
-                size=average_primary_site_num_reads)) + 
+            aes(stage1_len, stage2_len, color=log_min_ptos,
+                size=min_primary_site_num_reads)) + 
             geom_point() +
             xlab(s1) + ylab(s2) +
             scale_color_gradient2(low="black", mid="blue", high="red") +
@@ -90,7 +89,7 @@ for (s1 in stages) {
             geom_abline(slope=1, intercept=-300, color='#666666', lwd=0.5) +
             scale_x_continuous(expand=c(0.01, 0.01)) +
             scale_y_continuous(expand=c(0.01, 0.01)) +
-            geom_text(data=subset(utr_comparison_df, log_average_ptos >= 2 & average_primary_site_num_reads >= 50 & len_diff > 10),
+            geom_text(data=subset(utr_comparison_df, log_min_ptos >= 2 & min_primary_site_num_reads >= 50 & len_diff > 10),
                       aes(stage1_len, stage2_len, label=name),
                       color='#000000', size=4, angle=45, hjust=0, vjust=0) +
             ggtitle(sprintf("%s site usage: %s vs. %s (All genes)", feature_name, s1, s2))
@@ -105,8 +104,8 @@ for (s1 in stages) {
         if (nrow(filtered_df) > 0) {
             # plot comparing primary vs. secondary site usage for each gene
             plt <- ggplot(filtered_df,
-                aes(stage1_len, stage2_len, color=log_average_ptos,
-                    size=log_average_reads)) + 
+                aes(stage1_len, stage2_len, color=log_min_ptos,
+                    size=log_min_reads)) + 
                 geom_point() +
                 xlab(s1) + ylab(s2) +
                 scale_color_gradient2(low="black", mid="blue", high="red") +
@@ -114,7 +113,7 @@ for (s1 in stages) {
                 geom_abline(slope=1, intercept=-300, color='#666666', lwd=0.5) +
                 scale_x_continuous(expand=c(0.01, 0.01)) +
                 scale_y_continuous(expand=c(0.01, 0.01)) +
-                geom_text(data=subset(utr_comparison_df, log_average_ptos >= 2 & log_average_reads >= 3 & len_diff > 10),
+                geom_text(data=subset(utr_comparison_df, log_min_ptos >= 2 & log_min_reads >= 3 & len_diff > 10),
                           aes(stage1_len, stage2_len, label=name), size=4, angle=45, colour='#000000',
                               hjust=0, vjust=0) +
                 ggtitle(sprintf("%s site usage: %s vs. %s (Genes with switching)", feature_name, s1, s2))
@@ -129,7 +128,7 @@ for (s1 in stages) {
 
         # print top 25 genes with strongest site switching behavior
         stage1_stage2_utr_diff <- utr_comparison_df %>% 
-            filter(count_average & log_average_ratio > 0.75) %>%
+            filter(count_min & log_min_ratio > 0.75) %>%
             select(-log_length_diff)
 
         cat(sprintf("\n\nNumber of alternatively %s genes (%s vs. %s): **%d**\n\n",
