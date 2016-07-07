@@ -26,19 +26,19 @@ input_fasta = file.path(Sys.getenv("REF"),
 # spliced leader / polyadeynlation sites
 # Taken from L. major / H. sapiens  UTR analysis output from 2015/05/20
 sl_input = list(
-    cultured_metacyclic='input/lmajor_sacks_cultured_metacyclic_sl_no_ncrnas_sorted.gff.gz',
-    footpad_amastigote='input/lmajor_sacks_footpad_amast_sl_no_ncrnas_sorted.gff.gz',
-    sandfly_day2='input/lmajor_sacks_sandfly_day2_sl_no_ncrnas_sorted.gff.gz',
-    sandfly_day4='input/lmajor_sacks_sandfly_day4_sl_no_ncrnas_sorted.gff.gz',
-    sandfly_day15='input/lmajor_sacks_sandfly_day15_sl_no_ncrnas_sorted.gff.gz'
+    cultured_metacyclic='../input/lmajor_sacks_cultured_metacyclic_sl_no_ncrnas_sorted.gff.gz',
+    footpad_amastigote='../input/lmajor_sacks_footpad_amast_sl_no_ncrnas_sorted.gff.gz',
+    sandfly_day2='../input/lmajor_sacks_sandfly_day2_sl_no_ncrnas_sorted.gff.gz',
+    sandfly_day4='../input/lmajor_sacks_sandfly_day4_sl_no_ncrnas_sorted.gff.gz',
+    sandfly_day15='../input/lmajor_sacks_sandfly_day15_sl_no_ncrnas_sorted.gff.gz'
 )
 
 polya_input = list(
-    cultured_metacyclic='input/lmajor_sacks_cultured_metacyclic_polya_no_ncrnas_sorted.gff.gz',
-    footpad_amastigote='input/lmajor_sacks_footpad_amast_polya_no_ncrnas_sorted.gff.gz',
-    sandfly_day2='input/lmajor_sacks_sandfly_day2_polya_no_ncrnas_sorted.gff.gz',
-    sandfly_day4='input/lmajor_sacks_sandfly_day4_polya_no_ncrnas_sorted.gff.gz',
-    sandfly_day15='input/lmajor_sacks_sandfly_day15_polya_no_ncrnas_sorted.gff.gz'
+    cultured_metacyclic='../input/lmajor_sacks_cultured_metacyclic_polya_no_ncrnas_sorted.gff.gz',
+    footpad_amastigote='../input/lmajor_sacks_footpad_amast_polya_no_ncrnas_sorted.gff.gz',
+    sandfly_day2='../input/lmajor_sacks_sandfly_day2_polya_no_ncrnas_sorted.gff.gz',
+    sandfly_day4='../input/lmajor_sacks_sandfly_day4_polya_no_ncrnas_sorted.gff.gz',
+    sandfly_day15='../input/lmajor_sacks_sandfly_day15_polya_no_ncrnas_sorted.gff.gz'
 )
 
 # Non-coding RNA filters

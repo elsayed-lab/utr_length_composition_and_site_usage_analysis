@@ -14,10 +14,10 @@ output:
 
 ```{r knitr_settings, include=FALSE}
 library(knitr)
-opts_chunk$set(fig.width=1920/96,
-               fig.height=1080/96,
+opts_chunk$set(fig.width=1600/192,
+               fig.height=1200/192,
                fig.retina=1,
-               dpi=96)
+               dpi=192)
 options(knitr.duplicate.label='allow')
 
 # If rmarkdown.pandoc.to not specified (for example, when kniting

@@ -144,13 +144,13 @@ For now, the two filter criterion we will use are:
 
 Example distributions for a single stage:
 
-```{r score_distributions}
+```{r score_distributions, warning=FALSE}
 quantile(sl_gffs[[stage]]$score, na.rm=TRUE)
 #quantile(sl_gffs[[stage]]$min_length, na.rm=TRUE)
 #quantile(sl_gffs[[stage]]$seq_dist, na.rm=TRUE)
 ```
 
-```{r filter_sites}
+```{r filter_sites, warning=FALSE}
 for (stage in stages) {
     # TEMP 2016/03/28 (change once updated GFFs are finished building)
     sl_gffs[stage] <- sl_gffs[[stage]][sl_gffs[[stage]]$score >= 3]
